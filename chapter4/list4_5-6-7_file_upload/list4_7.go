@@ -2,13 +2,18 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
 func process(w http.ResponseWriter, r *http.Request) {
-	r.ParseForm()
-	fmt.Fprintln(w, r.PostForm)	// formの値のみ
-	// fmt.Fprintln(w, r.Form)	// formの値とURLパラメータ
+	file, _, err := r.FormFile("uploaded")
+	if err == nil {
+		data, err := ioutil.ReadAll(file)
+		if err == nil {
+			fmt.Fprintln(w, string(data))
+		}
+	}
 }
 
 func main() {
