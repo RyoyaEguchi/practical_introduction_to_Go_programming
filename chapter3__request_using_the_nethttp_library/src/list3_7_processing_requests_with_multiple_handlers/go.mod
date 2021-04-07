@@ -1,0 +1,3 @@
+module list3_7_processing_requests_with_multiple_handlers
+
+go 1.16

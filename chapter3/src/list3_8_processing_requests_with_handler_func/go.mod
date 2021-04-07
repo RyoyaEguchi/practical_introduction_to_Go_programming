@@ -1,3 +1,0 @@
-module list3_8_processing_requests_with_handler_func
-
-go 1.16

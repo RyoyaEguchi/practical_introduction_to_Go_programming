@@ -1,3 +1,4 @@
+.vscode
 bin/gopkgs.exe
 bin/dlv.exe
 bin/go-outline.exe
