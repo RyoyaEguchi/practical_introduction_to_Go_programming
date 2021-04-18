@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"path"
 	"strconv"
@@ -30,9 +29,9 @@ func main() {
 		panic(err)
 	}
 	server := http.Server{
-		Addr: ":8080"
+		Addr: ":8080",
 	}
-	http.HandleFunc("/post/", handleRequest(&post{Db: db}))
+	http.HandleFunc("/post/", handleRequest(&Post{Db: db}))
 	server.ListenAndServe()
 }
 
@@ -43,11 +42,18 @@ func handleRequest(t Text) http.HandlerFunc {
 		case "GET":
 			err = handleGet(w, r, t)
 		case "POST":
-			err = handlePost(w, r, t)
+			// err = handlePost(w, r, t)
+			err = handlePost(w, r)
 		case "PUT":
-			err = handlePut(w, r, t)
+			// err = handlePut(w, r, t)
+			err = handlePut(w, r)
 		case "DELETE":
-			err = handleDelete(w, r, t)
+			// err = handleDelete(w, r, t)
+			err = handleDelete(w, r)
+		}
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
 }
