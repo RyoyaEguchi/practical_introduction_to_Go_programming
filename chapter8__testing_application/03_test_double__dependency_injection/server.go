@@ -67,7 +67,7 @@ func handleGet(w http.ResponseWriter, r *http.Request, post Text) (err error) {
 	if err != nil {
 		return
 	}
-	output, err := json.MarshalIndent(post, "", "/t/t")
+	output, err := json.MarshalIndent(post, "", "\t\t")
 	if err != nil {
 		return
 	}
