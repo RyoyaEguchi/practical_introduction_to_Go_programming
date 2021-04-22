@@ -1,9 +1,13 @@
 package main
 
 import (
-	"image"	"image/color"
+	"fmt"
+	"image"
+	"image/color"
+	"io/ioutil"
+	"math"
+	"os"
 )
-
 
 func averageColor(img image.Image) [3]float64 {
 	bounds := img.Bounds()
@@ -21,43 +25,40 @@ func averageColor(img image.Image) [3]float64 {
 func resize(in image.Image, newWidth int) image.NRGBA {
 	bounds := in.Bounds()
 	ratio := bounds.Dx() / newWidth
-	out := image.NewRGBA(image.Rect(bounds.Min.X/ratio, bounds.Min.X/ratio, bounds.Max.X/ratio, bounds.Max.Y/ratio))
+	out := image.NewNRGBA(image.Rect(bounds.Min.X/ratio, bounds.Min.X/ratio, bounds.Max.X/ratio, bounds.Max.Y/ratio))
 	for y, j := bounds.Min.Y, bounds.Min.Y; y < bounds.Max.Y; y, j = y+ratio, j+1 {
 		for x, i := bounds.Min.X, bounds.Min.X; x < bounds.Max.X; x, i = x+ratio, i+1 {
 			r, g, b, a := in.At(x, y).RGBA()
-			out.SetNRGBA(i, j, color.NRGBA{uint8(r>>8), uint8(g>>8), uint8(b>>8), uint8(a>>8)})
+			out.SetNRGBA(i, j, color.NRGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), uint8(a >> 8)})
 		}
 	}
 	return *out
 }
 
-func tilesDB() map[string] [3]float64 {
+func tilesDB() map[string][3]float64 {
 	fmt.Println("Start populating tiles db ...")
-	db := make(map[string] [3]float64)
+	db := make(map[string][3]float64)
 	files, _ := ioutil.ReadDir("tiles")
 	for _, f := range files {
-		name := "titles/" + f.Name()
+		name := "tiles/" + f.Name()
 		file, err := os.Open(name)
 		if err == nil {
 			img, _, err := image.Decode(file)
 			if err == nil {
-				img, _, err := image.Decode(file)
-				if err == nil {
-					db[name] = averageColor(img)
-				} else {
-					fmt.Println("error in populating TILEDB:", err, name)
-				}
+				db[name] = averageColor(img)
 			} else {
-				fmt.Println("cannot open file", name, err)
+				fmt.Println("error in populating TILEDB:", err, name)
 			}
-			file.Close()
+		} else {
+			fmt.Println("cannot open file", name, err)
 		}
-		fmt.Println("Finished populating tiles db.")
-		return db
+		file.Close()
 	}
+	fmt.Println("Finished populating tiles db.")
+	return db
 }
 
-func nearest(target [3]float64, db *map[string] [3]float64) string {
+func nearest(target [3]float64, db *map[string][3]float64) string {
 	var filename string
 	smallest := 1000000.0
 	for k, v := range *db {
@@ -78,10 +79,10 @@ func sq(n float64) float64 {
 	return n * n
 }
 
-var TILEDB map[string] [3]float64
+var TILESDB map[string][3]float64
 
-func cloneTilesDB() map[string] [3]float64 {
-	db := make(map[string] [3]float64)
+func cloneTilesDB() map[string][3]float64 {
+	db := make(map[string][3]float64)
 	for k, v := range TILESDB {
 		db[k] = v
 	}
